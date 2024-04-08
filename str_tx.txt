@@ -1,0 +1,27 @@
+<tbody id="sport-0-ytd">
+<tr>
+<td>Activities</td>
+<td>564</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Distance</td>
+<td>4,407.0 mi</td>
+<td>0 mi</td>
+</tr>
+<tr>
+<td>Time</td>
+<td>492h 53m</td>
+<td>0h 0m</td>
+</tr>
+<tr>
+<td>Elev Gain</td>
+<td>128,419 ft</td>
+<td>0 ft</td>
+</tr>
+</tbody>
+
+
+tablee = driver.find_element(By.CLASS_NAME,'dense.striped')
+mini_t = tablee.find_elements(By.TAG_NAME, 'tbody')
+ls = mini_t[3]

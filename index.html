@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clickable Graph</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div style="width: 80%; margin: auto;">
+        <canvas id="myChart"></canvas>
+        <table id="dataTable" border="1">
+            <thead>
+                <tr>
+                    <th>X</th>
+                    <th>Y</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get the canvas context
+            var ctx = document.getElementById('myChart').getContext('2d');
+
+            // Initialize the chart with some data
+            var myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Sin(x)',
+                        data: [],
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1,
+                        fill: false,
+                        pointRadius: 0,
+                        lineTension: 0,
+                        spanGaps: true,
+                        showLine: true,
+                        steppedLine: false,
+                        cubicInterpolationMode: 'default',
+                        interpolate: true,
+                        stepped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom'
+                        },
+                        y: {
+                            min: -1.5,
+                            max: 1.5
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+
+            // Function to update the table and chart data
+            function updateData(lineId) {
+                // Make a POST request to the server to get updated data
+                fetch('/update_table', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'line_id=' + lineId,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Update the chart data
+                    myChart.data.labels = data.data.map(point => point.x);
+                    myChart.data.datasets[0].data = data.data.map(point => point.y);
+                    myChart.update();
+
+                    // Update the table data
+                    var tableBody = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
+                    tableBody.innerHTML = '';
+                    data.data.forEach(point => {
+                        var row = tableBody.insertRow();
+                        var cell1 = row.insertCell(0);
+                        var cell2 = row.insertCell(1);
+                        cell1.innerHTML = point.x;
+                        cell2.innerHTML = point.y;
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+            }
+
+            // Add click event listeners to the chart lines
+            document.getElementById('myChart').addEventListener('click', function (event) {
+                var activePoint = myChart.getElementsAtEvent(event)[0];
+                if (activePoint) {
+                    var lineId = activePoint.datasetIndex + 1;
+                    updateData(lineId);
+                }
+            });
+
+            // Initial data update
+            updateData(1);
+        });
+    </script>
+</body>
+</html>
